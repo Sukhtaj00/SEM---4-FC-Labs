@@ -1,16 +1,18 @@
-import { departments } from "../data/employees";
+import type { Department } from "../interfaces/Employee";
 
-const EmployeeList = () => {
+interface Props {
+  departments: Department[];
+}
+
+const EmployeeList = ({ departments }: Props) => {
   return (
     <main>
-      {departments.map((dept) => (
+      {departments.map(dept => (
         <section key={dept.name}>
           <h2>{dept.name}</h2>
           <ul>
             {dept.employees.map((emp, index) => (
-              <li key={index}>
-                {emp.firstName} {emp.lastName ?? ""}
-              </li>
+              <li key={index}>{emp.firstName}</li>
             ))}
           </ul>
         </section>
