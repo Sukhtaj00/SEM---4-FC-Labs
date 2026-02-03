@@ -1,13 +1,15 @@
 import { useState } from "react";
-import Header from "./components/header";
-import EmployeeList from "./components/employeelist";
-import Footer from "./components/footer";
-import AddEmployeeForm from "./components/addemployeeform";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Layout from "./components/layout";
+import EmployeesPage from "./pages/EmployeesPage";
+import OrganizationPage from "./pages/OrganizationPage";
 import type { Department } from "./interfaces/Employee";
 import { departments as initialDepartments } from "./data/employees";
+import "./App.css"
 
 function App() {
-  const [departments, setDepartments] = useState<Department[]>(initialDepartments);
+  const [departments, setDepartments] =
+    useState<Department[]>(initialDepartments);
 
   const addEmployee = (firstName: string, departmentName: string) => {
     setDepartments(prev =>
@@ -23,15 +25,23 @@ function App() {
   };
 
   return (
-    <>
-      <Header />
-      <EmployeeList departments={departments} />
-      <AddEmployeeForm
-        departments={departments}
-        onAddEmployee={addEmployee}
-      />
-      <Footer />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Navigate to="/employees" />} />
+          <Route
+            path="/employees"
+            element={
+              <EmployeesPage
+                departments={departments}
+                onAddEmployee={addEmployee}
+              />
+            }
+          />
+          <Route path="/organization" element={<OrganizationPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
