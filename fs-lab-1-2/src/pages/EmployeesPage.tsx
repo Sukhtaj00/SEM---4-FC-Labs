@@ -4,16 +4,16 @@ import type { Department } from "../interfaces/Employee";
 
 interface Props {
   departments: Department[];
-  onAddEmployee: (firstName: string, departmentName: string) => void;
+  setDepartments: React.Dispatch<React.SetStateAction<Department[]>>;
 }
 
-const EmployeesPage = ({ departments, onAddEmployee }: Props) => {
+const EmployeesPage = ({ departments, setDepartments }: Props) => {
   return (
     <>
       <EmployeeList departments={departments} />
       <AddEmployeeForm
         departments={departments}
-        onAddEmployee={onAddEmployee}
+        setDepartments={setDepartments}
       />
     </>
   );

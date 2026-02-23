@@ -1,51 +1,57 @@
-import { useState } from "react";
+import { employeeService } from "../services/employeeService";
+import { useFormInput } from "../hooks/useFormInput";
 import type { Department } from "../interfaces/Employee";
 
 interface Props {
   departments: Department[];
-  onAddEmployee: (firstName: string, departmentName: string) => void;
+  setDepartments: React.Dispatch<React.SetStateAction<Department[]>>;
 }
 
-const AddEmployeeForm = ({ departments, onAddEmployee }: Props) => {
-  const [firstName, setFirstName] = useState("");
-  const [department, setDepartment] = useState("");
-  const [error, setError] = useState("");
+const AddEmployeeForm = ({ departments, setDepartments }: Props) => {
+  const firstNameInput = useFormInput("");
+  const departmentInput = useFormInput("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
-    if (firstName.trim().length < 3) {
-      setError("First name must be at least 3 characters.");
+    const isNameValid = firstNameInput.validate(value =>
+      value.trim().length < 3
+        ? "First name must be at least 3 characters."
+        : null
+    );
+
+    if (!isNameValid) return;
+
+    const result = employeeService.createEmployee(
+      firstNameInput.value,
+      departmentInput.value
+    );
+
+    if (!result.success) {
+      departmentInput.validate(() => result.message || "Error");
       return;
     }
 
-    if (!department) {
-      setError("Please select a department.");
-      return;
-    }
-
-    onAddEmployee(firstName.trim(), department);
-    setFirstName("");
-    setDepartment("");
+    setDepartments(result.data);
+    firstNameInput.reset();
+    departmentInput.reset();
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <h3>Add New Employee</h3>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
       <input
         type="text"
+        value={firstNameInput.value}
+        onChange={e => firstNameInput.setValue(e.target.value)}
         placeholder="First Name"
-        value={firstName}
-        onChange={e => setFirstName(e.target.value)}
       />
+      {firstNameInput.message && <p>{firstNameInput.message}</p>}
 
       <select
-        value={department}
-        onChange={e => setDepartment(e.target.value)}
+        value={departmentInput.value}
+        onChange={e => departmentInput.setValue(e.target.value)}
       >
         <option value="">Select Department</option>
         {departments.map(dept => (
@@ -54,6 +60,7 @@ const AddEmployeeForm = ({ departments, onAddEmployee }: Props) => {
           </option>
         ))}
       </select>
+      {departmentInput.message && <p>{departmentInput.message}</p>}
 
       <button type="submit">Add Employee</button>
     </form>
