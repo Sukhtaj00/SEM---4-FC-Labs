@@ -1,12 +1,19 @@
-import { organization } from "../data/organization";
+import { useState } from "react";
+import { organizationRepo } from "../repositories/organizationRepo";
+import AddRoleForm from "../components/AddRoleForm";
+import type { Role } from "../interfaces/role";
 
 const OrganizationPage = () => {
+  const [roles, setRoles] = useState<Role[]>(
+    organizationRepo.getRoles()
+  );
+
   return (
     <main>
       <h2>Organization</h2>
 
       <ul>
-        {organization.map((person, index) => (
+        {roles.map((person, index) => (
           <li key={index} style={{ display: "flex", justifyContent: "space-between" }}>
             <span>
               {person.firstName} {person.lastName}
@@ -15,6 +22,8 @@ const OrganizationPage = () => {
           </li>
         ))}
       </ul>
+
+      <AddRoleForm setRoles={setRoles} />
     </main>
   );
 };
