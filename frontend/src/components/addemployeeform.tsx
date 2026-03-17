@@ -1,4 +1,3 @@
-import { employeeService } from "../services/employeeService";
 import { useFormInput } from "../hooks/useFormInput";
 import type { Department } from "../interfaces/Employee";
 
@@ -11,9 +10,10 @@ const AddEmployeeForm = ({ departments, setDepartments }: Props) => {
   const firstNameInput = useFormInput("");
   const departmentInput = useFormInput("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Frontend validation
     const isNameValid = firstNameInput.validate(value =>
       value.trim().length < 3
         ? "First name must be at least 3 characters."
@@ -22,19 +22,31 @@ const AddEmployeeForm = ({ departments, setDepartments }: Props) => {
 
     if (!isNameValid) return;
 
-    const result = employeeService.createEmployee(
-      firstNameInput.value,
-      departmentInput.value
-    );
+    try {
+      const response = await fetch("http://localhost:3000/employees", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          firstName: firstNameInput.value,
+          departmentName: departmentInput.value
+        })
+      });
 
-    if (!result.success) {
-      departmentInput.validate(() => result.message || "Error");
-      return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        departmentInput.validate(() => data.message || "Error");
+        return;
+      }
+
+      setDepartments(data);
+      firstNameInput.reset();
+      departmentInput.reset();
+    } catch (err) {
+      departmentInput.validate(() => "Server error.");
     }
-
-    setDepartments(result.data);
-    firstNameInput.reset();
-    departmentInput.reset();
   };
 
   return (
