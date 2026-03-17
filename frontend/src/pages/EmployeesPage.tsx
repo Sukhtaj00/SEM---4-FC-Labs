@@ -1,13 +1,19 @@
+import { useEffect, useState } from "react";
 import EmployeeList from "../components/employeelist";
 import AddEmployeeForm from "../components/addemployeeform";
 import type { Department } from "../interfaces/Employee";
 
-interface Props {
-  departments: Department[];
-  setDepartments: React.Dispatch<React.SetStateAction<Department[]>>;
-}
+const EmployeesPage = () => {
+  const [departments, setDepartments] = useState<Department[]>([]);
 
-const EmployeesPage = ({ departments, setDepartments }: Props) => {
+  // Load employees from backend
+  useEffect(() => {
+    fetch("http://localhost:3000/employees")
+      .then(res => res.json())
+      .then(data => setDepartments(data))
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <>
       <EmployeeList departments={departments} />
